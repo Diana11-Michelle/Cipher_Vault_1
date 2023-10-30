@@ -1,13 +1,9 @@
-from kivy.lang import Builder
-from kivymd.uix.scrollview import MDScrollView
-from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.app import MDApp
-from kivymd.uix.button import MDRectangleFlatButton
-from kivy.properties import ObjectProperty
-from plyer import filechooser
-from kivymd.uix.label import MDLabel
-from kivy.uix.screenmanager import Screen, ScreenManager
 
+from kivymd.uix.scrollview import MDScrollView
+from kivymd.app import MDApp
+from kivy.properties import ObjectProperty
+from kivymd.uix.filemanager import MDFileManager
+from kivy.lang import Builder
 KV = '''
 <DrawerClickableItem@MDNavigationDrawerItem>
     focus_color: "#e7e4c0"
@@ -54,14 +50,16 @@ MDScreen:
                         icon:"file"
                         md_bg_color: "#e7e4c0"
                         text_color: "#4a4939"
+                        #creates the file chooser
                         pos_hint:{"center_x": .7, "center_y":.7}
-                        on_release:
-                            app.file_chooser()
+                        on_release: app.open_file_manager()
                     MDRoundFlatButton:
                         text:"File Path"
                         md_bg_color: "#e7e4c0"
                         text_color: "#4a4939"
                         pos_hint:{"center_x": .7, "center_y":.6}
+                        on_release:app.select_path()
+                       
                     MDRoundFlatButton:
                         text:"File size"
                         md_bg_color: "#e7e4c0"
@@ -74,12 +72,13 @@ MDScreen:
                         text_color: "#4a4939"
                         pos_hint:{"center_x": .7, "center_y":.4}
                     MDLabel:
-                        id:selected_path
+                        id:selected_path_label
                         text: "This is the file path"
                         theme_text_color: "Hint"
                         pos_hint:{"center_x": .6, "center_y":.6}
+                        
                     MDLabel:
-                        id:file_size
+                        id:selected_file_size
                         text: "This is the file size"
                         theme_text_color: "Hint"
                         pos_hint:{"center_x": .6, "center_y":.5}
@@ -414,15 +413,33 @@ class ContentNavigationDrawer(MDScrollView):
 
 
 class Example(MDApp):
+
+
     def build(self):
         self.theme_cls.theme_style = "Dark"  # The name of the color scheme that the application will use"Purple", "Red""Teal"
         return Builder.load_string(KV)
 
-    def file_chooser(self):
-        filechooser.open_file(on_selection=self.selected)
+    def __init__(self,**kwargs):
+        super().__init__(**kwargs)
+        self.file_manager_obj = MDFileManager(
+            ext = [".docx"], # Only allow .docx file
+            select_path = self.select_path,
+            exit_manager= self.exit_manager,
+            preview = True
+        )
 
-    def selected(self, selection):
-        self.root.ids.selected_path.text = selection[0]
+    def select_path(self,path):
+        # This method is called when a file is selected
+        print(path)
+        selected_path_label = self.root.ids.selected_path_label
+        selected_path_label.text = f"selected path: {path}"
+        self.exit_manager()
+
+    def open_file_manager(self):
+        self.file_manager_obj.show('/')
+
+    def exit_manager(self):
+        self.file_manager_obj.close()
 
 
 Example().run()
