@@ -1,12 +1,7 @@
-from kivy.lang import Builder
-from kivymd.uix.scrollview import MDScrollView
-from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.app import MDApp
-from kivymd.uix.button import MDRectangleFlatButton
-from kivy.properties import ObjectProperty
+from kivy.lang import Builder
 from plyer import filechooser
-from kivymd.uix.label import MDLabel
-from kivy.uix.screenmanager import Screen, ScreenManager
+import os
 
 KV = '''
 <DrawerClickableItem@MDNavigationDrawerItem>
@@ -35,6 +30,7 @@ MDScreen:
 
             MDScreen:
                 name: "scr 1" 
+                id:scr1
 
 
                 MDTopAppBar:
@@ -49,42 +45,49 @@ MDScreen:
                     text: "Screen 1"
                     halign: "center"
                 MDFloatLayout:
-                    MDRoundFlatIconButton:
-                        text:"Choose File"
-                        icon:"file"
-                        md_bg_color: "#e7e4c0"
-                        text_color: "#4a4939"
-                        pos_hint:{"center_x": .7, "center_y":.7}
-                        on_release:
-                            app.file_chooser()
+                    #MDRoundFlatIconButton:
+                     #   text:"Choose File"
+                     #  id:scr_1_button
+                    # icon:"file"
+                      #  md_bg_color: "#e7e4c0"
+                       # text_color: "#4a4939"
+                        #creates the file chooser
+                        #pos_hint:{"center_x": .7, "center_y":.7}
+                        #on_release: app.open_file_chooser()
                     MDRoundFlatButton:
-                        text:"File Path"
+                        id:selected_path
+                        text:"Selected Path:"
                         md_bg_color: "#e7e4c0"
                         text_color: "#4a4939"
                         pos_hint:{"center_x": .7, "center_y":.6}
+
+
                     MDRoundFlatButton:
                         text:"File size"
                         md_bg_color: "#e7e4c0"
                         text_color: "#4a4939"
                         pos_hint:{"center_x": .7, "center_y":.5}
                     MDRoundFlatIconButton:
-                        text:"Open File"
+                        text:"Read File"
                         icon: "mailbox-open"
                         md_bg_color: "#e7e4c0"
                         text_color: "#4a4939"
                         pos_hint:{"center_x": .7, "center_y":.4}
+                        on_release: app.on_text_file_selected()
+
                     MDLabel:
-                        id:selected_path
+                        id:selected_path_label
                         text: "This is the file path"
                         theme_text_color: "Hint"
-                        pos_hint:{"center_x": .6, "center_y":.6}
+                        pos_hint:{"center_x": .5, "center_y":.6}
+
                     MDLabel:
-                        id:file_size
+                        id:file_size_label
                         text: "This is the file size"
                         theme_text_color: "Hint"
-                        pos_hint:{"center_x": .6, "center_y":.5}
+                        pos_hint:{"center_x": .5, "center_y":.5}
                     MDTextField:
-                        id: txt
+                        id: file_content_label
                         multiline: True
                         hint_text: "This is the text display area "
                         halign: "left"
@@ -99,7 +102,13 @@ MDScreen:
                          # green color with full opacity
                         text_color: "#4a4939"
                         pos_hint:{"center_x": .8, "center_y":.1} 
-                        on_press: root.manager.current = 'scr 2'         
+                        on_press: root.manager.current = 'scr 2'    
+                    MDRectangleFlatButton:
+                        text:"Clear"
+                         # green color with full opacity
+                        text_color: "#4a4939"
+                        pos_hint:{"center_x": .6, "center_y":.1} 
+                        on_press:app.clear_inputs_and_outputs()    
 
 
 
@@ -109,7 +118,7 @@ MDScreen:
                 name: "scr 2"
 
                 MDTopAppBar:
-                    title: "Ciper Vault Message extract"
+                    title: "Cipher Vault Message extract"
                     elevation: 4
                     pos_hint: {"top": 1}
                     md_bg_color: "#e7e4c0"
@@ -186,8 +195,7 @@ MDScreen:
                         md_bg_color: "#e7e4c0"
                         text_color: "#4a4939"
                         pos_hint:{"center_x": .7, "center_y":.7}
-                        on_release:
-                            app.file_chooser()
+
                     MDRoundFlatButton:
                         text:"File Path"
                         md_bg_color: "#e7e4c0"
@@ -277,13 +285,13 @@ MDScreen:
                     line_color_focus: "#e7e4c0"
                     icon_left: "email"
                     text_color: app.theme_cls.primary_color
-                    
+
                 MDRoundFlatButton:
                     text:"Embed Secret Message"
                     md_bg_color: "#e7e4c0"
                     text_color: "#4a4939"
                     pos_hint:{"center_x": .2, "center_y":.4}
-                    
+
                 MDLabel:
                     id:output_msg
                     text: "Output"
@@ -407,22 +415,51 @@ MDScreen:
 '''
 
 
-class ContentNavigationDrawer(MDScrollView):
-    screen_manager = ObjectProperty()
-    nav_drawer = ObjectProperty()
-    pass
-
-
 class Example(MDApp):
+
     def build(self):
         self.theme_cls.theme_style = "Dark"  # The name of the color scheme that the application will use"Purple", "Red""Teal"
         return Builder.load_string(KV)
 
-    def file_chooser(self):
-        filechooser.open_file(on_selection=self.selected)
+    def open_file_chooser(self):
 
-    def selected(self, selection):
-        self.root.ids.selected_path.text = selection[0]
+        filechooser.open_file(on_selection=self.on_file_selected)
+
+    def on_file_selected(self, selection):
+        print(selection)
+        if selection:
+            selected_file = selection[0]
+            self.root.ids.selected_path_label.text = f"Selected path: {selected_file}"
+            # Get the file size
+            try:
+                file_size = os.path.getsize(selected_file)
+                self.root.ids.file_size_label.text = f"File Size: {file_size} bytes"
+
+            except Exception as e:
+                self.root.ids.file_size_label.text = "File Size: Error"
+                print(f"Error getting file size: {e}")
+
+    def on_text_file_selected(self):
+        selection = filechooser.open_file(on_selection=self.on_file_selected)
+
+        if selection:
+            selected_file = selection[0]
+            self.root.ids.selected_path_label.text = f"Selected path: {selected_file}"
+
+            try:
+                with open(selected_file, "r", encoding="utf-8", errors="ignore") as file:
+                    file_content = file.read()
+                    self.root.ids.file_content_label.text = file_content
+            except Exception as e:
+                self.root.ids.file_content_label.text = f"Error reading file: {str(e)}"
+                # Move the path label update to the exception block if an error occurs
+                self.root.ids.selected_path_label.text = f"Selected path: {selected_file}"
+
+    def clear_inputs_and_outputs(self):
+        self.root.ids.selected_path_label.text = ""
+        self.root.ids.file_size_label.text = ""
+        self.root.ids.file_content_label.text = ""
+        self.root.ids.file_content_label.text = ""
 
 
 Example().run()

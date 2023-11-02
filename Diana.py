@@ -1,133 +1,473 @@
+
 from kivymd.app import MDApp
-from kivymd.uix.label import MDLabel
-from kivy.config import Config
 from kivy.lang import Builder
-from kivymd.uix.floatlayout import MDFloatLayout
-from kivymd.uix.tab import MDTabsBase
-from kivymd.icon_definitions import md_icons
-from kivy.properties import ObjectProperty
-from kivymd.uix.button import MDRectangleFlatButton
-from kivy.uix.button import Button
-from kivy.uix.screenmanager import Screen
-from kivymd.uix.button import MDIconButton
-from kivymd.font_definitions import fonts
+from plyer import filechooser
+import os
 
 
 
-Config.set('graphics', 'window_backend', 'x11')  # Replace 'x11' with the desired backend
-# Other Config settings (optional)
-Config.set('graphics', 'width', '400')
-Config.set('graphics', 'height', '300')
+KV = '''
+<DrawerClickableItem@MDNavigationDrawerItem>
+    focus_color: "#e7e4c0"
+    text_color: "#4a4939"
+    icon_color: "#4a4939"
+    ripple_color: "#c5bdd2"
+    selected_color: "#0c6c4d"
 
-colors = {
-    "Brown": {
-        "200": "#212121",
-        "500": "#212121",
-        "700": "#212121",
-    },
-    "Red": {
-        "200": "#C25554",
-        "500": "#C25554",
-        "700": "#C25554",
-    },
-    "Light": {
-        "StatusBar": "E0E0E0",
-        "AppBar": "#202020",
-        "Background": "#2E3032",
-        "CardsDialogs": "#FFFFFF",
-        "FlatButtonDown": "#CCCCCC",
-    },
-}
 
-kv = '''
-BoxLayout:
-    orientation: 'vertical'
-  
-    MDTextField:
-        hint_text: "Enter plain text"
-        helper_text: "This is Required"
-        helper_text_mode: "on_error"
-        pos_hint: {"center_x": .5, "center_y": .5}
-        size_hint_x: .5 
-        multiline: True
-        mode:"rectangle"
+<DrawerLabelItem@MDNavigationDrawerItem>
+    text_color: "#4a4939"
+    icon_color: "#4a4939"
+    focus_behavior: False
+    selected_color: "#4a4939"
+    _no_ripple_effect: True
 
-    MDBoxLayout:
-        orientation: "vertical"
+MDScreen:
 
-    MDTopAppBar:
-        title: "Cipher Vault"
+    MDNavigationLayout:
 
-    MDTabs:
-        id: tabs
-<Tab>
+        MDScreenManager:
+            id: screen_manager
 
-    MDIconButton:
-        id: icon
-        icon: root.icon
-        icon_size: "48sp"
-        theme_icon_color: "Custom"
-        icon_color: "white"
-        pos_hint: {"center_x": .5, "center_y": .5}
-        
-    MDSpinner: #Spinner
-        size_hint: None, None
-        size: dp(46), dp(46)
-        pos_hint: {'center_x': .5, 'center_y': .5}
-        active: True if check.active else False
-    MDCheckbox:
-        id: check
-        size_hint: None, None
-        size: dp(48), dp(48)
-        pos_hint: {'center_x': .5, 'center_y': .4}
-        active: True
-        #End of spinner
-        
-        #Bottom Navigation
-        
-        
-        #End of bottom navigation
+            #1st screen
+
+            MDScreen:
+                name: "scr 1" 
+                id:scr1
+
+
+                MDTopAppBar:
+                    title: "Cipher Vault"
+                    elevation: 4
+                    pos_hint: {"top": 1}
+                    md_bg_color: "#e7e4c0"
+                    specific_text_color: "#4a4939"
+                    left_action_items:
+                        [['menu', lambda x: nav_drawer.set_state("open")]]
+                MDLabel:
+                    text: "Screen 1"
+                    halign: "center"
+                MDFloatLayout:
+                    #MDRoundFlatIconButton:
+                     #   text:"Choose File"
+                     #  id:scr_1_button
+                    # icon:"file"
+                      #  md_bg_color: "#e7e4c0"
+                       # text_color: "#4a4939"
+                        #creates the file chooser
+                        #pos_hint:{"center_x": .7, "center_y":.7}
+                        #on_release: app.open_file_chooser()
+                    MDRoundFlatButton:
+                        id:selected_path
+                        text:"Selected Path:"
+                        md_bg_color: "#e7e4c0"
+                        text_color: "#4a4939"
+                        pos_hint:{"center_x": .7, "center_y":.6}
+               
+
+                    MDRoundFlatButton:
+                        text:"File size"
+                        md_bg_color: "#e7e4c0"
+                        text_color: "#4a4939"
+                        pos_hint:{"center_x": .7, "center_y":.5}
+                    MDRoundFlatIconButton:
+                        text:"Read File"
+                        icon: "mailbox-open"
+                        md_bg_color: "#e7e4c0"
+                        text_color: "#4a4939"
+                        pos_hint:{"center_x": .7, "center_y":.4}
+                        on_release: app.on_text_file_selected()
+
+                    MDLabel:
+                        id:selected_path_label
+                        text: "This is the file path"
+                        theme_text_color: "Hint"
+                        pos_hint:{"center_x": .5, "center_y":.6}
+
+                    MDLabel:
+                        id:file_size_label
+                        text: "This is the file size"
+                        theme_text_color: "Hint"
+                        pos_hint:{"center_x": .5, "center_y":.5}
+                    MDTextField:
+                        id: file_content_label
+                        multiline: True
+                        hint_text: "This is the text display area "
+                        halign: "left"
+                        pos_hint: {"center_x": .5, "center_y": .3}
+                        theme_text_color: "Hint"
+                        line_color_focus: "#e7e4c0"
+                        icon_left: "email"
+                        text_color: app.theme_cls.primary_color
+
+                    MDRectangleFlatButton:
+                        text:"Next"
+                         # green color with full opacity
+                        text_color: "#4a4939"
+                        pos_hint:{"center_x": .8, "center_y":.1} 
+                        on_press: root.manager.current = 'scr 2'    
+                    MDRectangleFlatButton:
+                        text:"Clear"
+                         # green color with full opacity
+                        text_color: "#4a4939"
+                        pos_hint:{"center_x": .6, "center_y":.1} 
+                        on_press:app.clear_inputs_and_outputs()    
+
+
+
+            #2nd screen
+
+            MDScreen:
+                name: "scr 2"
+
+                MDTopAppBar:
+                    title: "Cipher Vault Message extract"
+                    elevation: 4
+                    pos_hint: {"top": 1}
+                    md_bg_color: "#e7e4c0"
+                    specific_text_color: "#4a4939"
+                    left_action_items:
+                        [['menu', lambda x: nav_drawer.set_state("open")]]
+
+                MDLabel:
+                    text: "Screen 2"
+                    halign: "center"
+                MDLabel:
+                    id:opened_file
+                    text: "Opened File"
+                    theme_text_color: "Primary"
+                    pos_hint:{"center_x": .5, "center_y":.8}
+                MDTextField:
+                    id: txt
+                    multiline: True
+                    hint_text: "This is the opened file with the hidden message "
+                    halign: "left"
+                    pos_hint: {"center_x": .5, "center_y": .7}
+                    theme_text_color: "Hint"
+                    line_color_focus: "#e7e4c0"
+                    icon_left: "email"
+                    text_color: app.theme_cls.primary_color
+                MDRoundFlatButton:
+                    text:"Extract Secret Message"
+                    md_bg_color: "#e7e4c0"
+                    text_color: "#4a4939"
+                    pos_hint:{"center_x": .2, "center_y":.6}
+                MDTextField:
+                    id: scrtxt
+                    multiline: True
+                    hint_text: "Secret message "
+                    halign: "left"
+                    pos_hint: {"center_x": .5, "center_y": .5}
+                    theme_text_color: "Hint"
+                    line_color_focus: "#e7e4c0"
+                    icon_left: "email"
+                    text_color: app.theme_cls.primary_color
+                MDRectangleFlatButton:
+                    text:"Reply"
+                    # color with full opacity
+                    text_color: "#4a4939"
+                    pos_hint:{"center_x": .8, "center_y":.1} 
+                    on_press: root.manager.current = 'scr 2'
+                MDRectangleFlatButton:
+                    text:"Back"
+                    # color with full opacity
+                    text_color: "#4a4939"
+                    pos_hint:{"center_x": .6, "center_y":.1} 
+                    on_press: root.manager.current = 'scr 2'
+
+            #3rd screen
+            MDScreen:
+                name: "scr 3"
+
+                MDTopAppBar:
+                    title: "Ciper Vault Message "
+                    elevation: 4
+                    pos_hint: {"top": 1}
+                    md_bg_color: "#e7e4c0"
+                    specific_text_color: "#4a4939"
+                    left_action_items:
+                        [['menu', lambda x: nav_drawer.set_state("open")]]
+
+                MDLabel:
+                    text: "Screen 3"
+                    halign: "center"
+                MDFloatLayout:
+                    MDRoundFlatIconButton:
+                        text:"Choose File"
+                        icon:"file"
+                        md_bg_color: "#e7e4c0"
+                        text_color: "#4a4939"
+                        pos_hint:{"center_x": .7, "center_y":.7}
+                       
+                    MDRoundFlatButton:
+                        text:"File Path"
+                        md_bg_color: "#e7e4c0"
+                        text_color: "#4a4939"
+                        pos_hint:{"center_x": .7, "center_y":.6}
+                    MDRoundFlatButton:
+                        text:"File size"
+                        md_bg_color: "#e7e4c0"
+                        text_color: "#4a4939"
+                        pos_hint:{"center_x": .7, "center_y":.5}
+                    MDRoundFlatIconButton:
+                        text:"Open File"
+                        icon: "mailbox-open"
+                        md_bg_color: "#e7e4c0"
+                        text_color: "#4a4939"
+                        pos_hint:{"center_x": .7, "center_y":.4}
+                    MDLabel:
+                        id:selected_path
+                        text: "This is the file path"
+                        theme_text_color: "Hint"
+                        pos_hint:{"center_x": .6, "center_y":.6}
+                    MDLabel:
+                        id:file_size
+                        text: "This is the file size"
+                        theme_text_color: "Hint"
+                        pos_hint:{"center_x": .6, "center_y":.5}
+                    MDTextField:
+                        id: txt
+                        multiline: True
+                        hint_text: "This is the text display area "
+                        halign: "left"
+                        pos_hint: {"center_x": .5, "center_y": .3}
+                        theme_text_color: "Hint"
+                        line_color_focus: "#e7e4c0"
+                        icon_left: "email"
+                        text_color: app.theme_cls.primary_color
+
+                    MDRectangleFlatButton:
+                        text:"Next"
+                        # green color with full opacity
+                        text_color: "#4a4939"
+                        pos_hint:{"center_x": .8, "center_y":.1} 
+                        on_press: root.manager.current = 'scr 2'        
+            #4th screen
+            MDScreen:
+                name: "scr 4"
+
+                MDTopAppBar:
+                    title: "Ciper Vault"
+                    elevation: 4
+                    pos_hint: {"top": 1}
+                    md_bg_color: "#e7e4c0"
+                    specific_text_color: "#4a4939"
+                    left_action_items:
+                        [['menu', lambda x: nav_drawer.set_state("open")]]
+
+                MDLabel:
+                    text: "Screen 4"
+                    halign: "center"
+                MDLabel:
+                    id:opened_file
+                    text: "Opened File"
+                    theme_text_color: "Primary"
+                    pos_hint:{"center_x": .5, "center_y":.8}
+                MDTextField:
+                    id: txt
+                    multiline: True
+                    hint_text: "This is the opened file that will hide the message "
+                    halign: "left"
+                    pos_hint: {"center_x": .5, "center_y": .7}
+                    theme_text_color: "Hint"
+                    line_color_focus: "#e7e4c0"
+                    icon_left: "email"
+                    text_color: app.theme_cls.primary_color
+                MDLabel:
+                    id:write_msg
+                    text: "Write Secret Message"
+                    theme_text_color: "Primary"
+                    pos_hint:{"center_x": .5, "center_y":.6} 
+                MDTextField:
+                    id: scrtxt
+                    multiline: True
+                    hint_text: "Secret message "
+                    halign: "left"
+                    pos_hint: {"center_x": .5, "center_y": .5}
+                    theme_text_color: "Hint"
+                    line_color_focus: "#e7e4c0"
+                    icon_left: "email"
+                    text_color: app.theme_cls.primary_color
+
+                MDRoundFlatButton:
+                    text:"Embed Secret Message"
+                    md_bg_color: "#e7e4c0"
+                    text_color: "#4a4939"
+                    pos_hint:{"center_x": .2, "center_y":.4}
+
+                MDLabel:
+                    id:output_msg
+                    text: "Output"
+                    theme_text_color: "Primary"
+                    pos_hint:{"center_x": .5, "center_y":.3}
+                MDTextField:
+                    id: outputscrtxt
+                    multiline: True
+                    hint_text: "Output message "
+                    halign: "left"
+                    pos_hint: {"center_x": .5, "center_y": .2}
+                    theme_text_color: "Hint"
+                    line_color_focus: "#e7e4c0"
+                    icon_left: "email"
+                    text_color: app.theme_cls.primary_color
+                MDRectangleFlatButton:
+                    text:"Save File"
+                    # color 
+                    text_color: "#4a4939"
+                    pos_hint:{"center_x": .5, "center_y":.3} 
+
+                MDRectangleFlatButton:
+                    text:"Finish"
+                    # color with full opacity
+                    text_color: "#4a4939"
+                    pos_hint:{"center_x": .8, "center_y":.1} 
+                    on_press: root.manager.current = 'scr 2'
+                MDRectangleFlatButton:
+                    text:"Back"
+                    # color with full opacity
+                    text_color: "#4a4939"
+                    pos_hint:{"center_x": .6, "center_y":.1} 
+                    on_press: root.manager.current = 'scr 2'
+
+        MDNavigationDrawer:
+            id: nav_drawer
+            radius: (0, 16, 16, 0)
+            type:"standard"
+            close_on_click:True
+
+
+            #added but needs adjusting
+            #ContentNavigationDrawer:
+             #   screen_manager: screen_manager
+              #  nav_drawer: nav_drawer
+
+
+
+            MDNavigationDrawerMenu:
+
+                MDNavigationDrawerHeader:
+                    title: "Cryptosteg"
+                    title_color: "#e7e4c0"
+                    source: "logo1.png"
+                    spacing: "4dp"
+                    padding: "12dp", 0, 0, "56dp"
+                    #title_font_style:""
+                    #title_font_size:""
+
+                MDNavigationDrawerLabel:
+                    text: "Select Action" 
+                    text_halign:"center"
+
+                MDNavigationDrawerDivider:   
+
+                MDNavigationDrawerLabel:
+                    text: "Extract"
+
+                DrawerClickableItem:
+                    icon: "file"
+                    right_text: "+99"
+                    text_right_color: "#4a4939"
+                    text: "Select file"
+                    on_release:
+                        root.ids.screen_manager.current = "scr 1"
+
+
+
+                DrawerClickableItem:
+                    icon: "message-reply-text"
+                    text: "Extract message"
+                    on_release:
+                        root.ids.screen_manager.current = "scr 2"
+
+                MDNavigationDrawerDivider:
+
+                MDNavigationDrawerLabel:
+                    text: "Hide"
+
+                DrawerClickableItem:
+                    icon: "file-document"
+                    right_text: "+99"
+                    text_right_color: "#4a4939"
+                    text: "Select file"
+                    on_release:
+                        root.ids.screen_manager.current = "scr 3"
+
+                DrawerClickableItem:
+                    icon: "message-draw"
+                    text: "Embed message"
+                    on_release:
+                        root.ids.screen_manager.current = "scr 4"
+
+                MDNavigationDrawerDivider:
+
+                MDNavigationDrawerLabel:
+                    text: "Labels"
+
+                DrawerLabelItem:
+                    icon: "information-outline"
+                    text: "Rate App"
+
+                DrawerLabelItem:
+                    icon: "account-settings"
+                    text: "Settings"
+                DrawerLabelItem:
+                    icon: "help-circle"
+                    text: "Help & Feedback"
+
+
 '''
-class Tab(MDFloatLayout, MDTabsBase):
-   # '''Class implementing content for a tab.'''
-    icon = ObjectProperty()
 
-    def build(self):
-         self.add_widget(MDIconButton(
-            id=self.icon,
-            icon=self.icon,
-            icon_size="48sp",
-            theme_icon_color="Custom",
-            icon_color="white",
-            pos_hint={"center_x": .5, "center_y": .5}
-        ))
-class Test(MDApp):
-    icons = list(md_icons.keys())[15:30]
+class Example(MDApp):
 
 
     def build(self):
-        self.theme_cls.colors = colors
-        self.theme_cls.primary_palette = "Brown"
-        self.theme_cls.accent_palette = "Red"
-
-    def build (self):
-        for name_tab in self.icons:
-            tab = Tab(title="Cipher Vault " + name_tab, icon=name_tab)
+        self.theme_cls.theme_style = "Dark"  # The name of the color scheme that the application will use"Purple", "Red""Teal"
+        return Builder.load_string(KV)
 
 
-        label = MDLabel(
-            text='Hello, Kivy!',
-            halign='center',
-            theme_text_color='Custom',
-            text_color=(236 / 255.0, 98 / 255.0, 81 / 255.0, 1),
-            font_style='H2'
-        )
+    def open_file_chooser(self):
+
+        filechooser.open_file(on_selection =self.on_file_selected)
+
+    def on_file_selected(self, selection):
+        print(selection)
+        if selection:
+            selected_file = selection[0]
+            self.root.ids.selected_path_label.text = f"Selected path: {selected_file}"
+            # Get the file size
+            try:
+                file_size = os.path.getsize(selected_file)
+                self.root.ids.file_size_label.text = f"File Size: {file_size} bytes"
+
+            except Exception as e:
+                self.root.ids.file_size_label.text = "File Size: Error"
+                print(f"Error getting file size: {e}")
+    def on_text_file_selected(self):
+        selection = filechooser.open_file(on_selection=self.on_file_selected)
+
+        if selection:
+            selected_file = selection[0]
+            self.root.ids.selected_path_label.text = f"Selected path: {selected_file}"
+
+            try:
+                with open(selected_file, "r", encoding="utf-8", errors="ignore") as file:
+                    file_content = file.read()
+                    self.root.ids.file_content_label.text = file_content
+            except Exception as e:
+                self.root.ids.file_content_label.text = f"Error reading file: {str(e)}"
+                # Move the path label update to the exception block if an error occurs
+                self.root.ids.selected_path_label.text = f"Selected path: {selected_file}"
+    def clear_inputs_and_outputs (self):
+        self.root.ids.selected_path_label.text =""
+        self.root.ids.file_size_label.text = ""
+        self.root.ids.file_content_label.text = ""
+        self.root.ids.file_content_label.text = ""
 
 
-        return Builder.load_string(kv)
 
-    def pressed(self, instance):
-        print("Button pressed")
 
-if  __name__ == '__main__':
-    Test().run()
+
+Example().run()
+
+
+
