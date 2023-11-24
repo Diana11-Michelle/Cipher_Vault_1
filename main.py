@@ -215,14 +215,7 @@ MDScreen:
                         md_bg_color: "#e7e4c0"
                         text_color: "#4a4939"
                         pos_hint:{"center_x": .7, "center_y":.5}
-                    MDRoundFlatIconButton:
-                        text:"Read File"
-                        icon: "mailbox-open"
-                        md_bg_color: "#e7e4c0"
-                        text_color: "#4a4939"
-                        pos_hint:{"center_x": .7, "center_y":.4}
-                        on_release: app.on_text_file2_selected()
-
+                    
                     MDLabel:
                         id:selected_path2_label
                         text: "This is the file path"
@@ -233,16 +226,7 @@ MDScreen:
                         text: "This is the file size"
                         theme_text_color: "Hint"
                         pos_hint:{"center_x": .6, "center_y":.5}
-                    MDTextField:
-                        id: file_content2_label
-                        multiline: True
-                        hint_text: "This is the text display area "
-                        halign: "left"
-                        pos_hint: {"center_x": .5, "center_y": .3}
-                        theme_text_color: "Hint"
-                        line_color_focus: "#e7e4c0"
-                        icon_left: "email"
-                        text_color: app.theme_cls.primary_color
+                   
 
                     MDRectangleFlatButton:
                         text:"Next"
@@ -476,9 +460,6 @@ class Example(MDApp):
             # Move the path label update to the exception block if an error occurs
             self.root.ids.selected_path_label.text = f"Selected path: {selected_file}"
 
-    from kivymd.uix.scrollview import MDScrollView
-
-    # ...
 
     def show(self, selected_file):
         if not self.dialog:
@@ -521,8 +502,10 @@ class Example(MDApp):
     def on_file2_selected(self, selection):
         print(selection)
         if selection:
-            selected_file = selection[0]
+            selected_file = selection[0] #store the selected file
             self.root.ids.selected_path2_label.text = f"Selected path: {selected_file}"
+            self.show2(self.selected_file)  # Pass selected_file to the show2 method
+
             # Get the file size
             try:
                 file_size = os.path.getsize(selected_file)
@@ -532,22 +515,50 @@ class Example(MDApp):
                 self.root.ids.file_size2_label.text = "File Size: Error"
                 print(f"Error getting file size: {e}")
 
-    def on_text_file2_selected(self):
-        selection = filechooser.open_file(on_selection=self.on_file2_selected)
+    def on_text_file2_selected(self, selected_file, selection):
+        print(selected_file)  # print the selected file
+        if selection and selection[0]:
+            chosen_file = selection[0]
+            self.root.ids.selected_path2_label.text = f"Selected path: {chosen_file}"
+            try:
+                with open(chosen_file, "r", encoding="utf-8", errors="ignore") as file:
+                    file_content = file.read()
+                    #self.root.ids.file_content2_label.text = file_content
+                    self.show(file_content)  # Pass file_content to show method
+            except Exception as e:
+              #Move the path label update to the exception block if an error occurs
+                self.root.ids.selected_path2_label.text = f"Selected path: {chosen_file}"
 
-        if selection:
-            selected_file = selection[0]
-            self.root.ids.selected_path2_label.text = f"Selected path: {selected_file}"
+    def show2(self, selected_file):
+        if not self.dialog:
+            scrollView = ScrollView(size_hint_y=None, height="300dp")
+
+            # Create an MDTextField for editable text
+            text_input = MDTextField(
+                multiline=True,
+                hint_text="Editable Text",
+                write_tab=False
+            )
 
             try:
                 with open(selected_file, "r", encoding="utf-8", errors="ignore") as file:
                     file_content = file.read()
-                    self.root.ids.file_content2_label.text = file_content
-                    self.show(file_content)  # Pass file_content to show method
+                    text_input.text = file_content
+                    #opens the file contents on screen 2 as wells
+
             except Exception as e:
-                self.root.ids.file_content2_label.text = f"Error reading file: {str(e)}"
-                # Move the path label update to the exception block if an error occurs
-                self.root.ids.selected_path2_label.text = f"Selected path: {selected_file}"
+                text_input.text = f"Error reading file: {str(e)}"
+
+            scrollView.add_widget(text_input)
+
+            self.dialog = MDDialog(
+                title="Opened File",
+                type="custom",
+                content_cls=scrollView
+            )
+
+        self.dialog.auto_dismiss = True
+        self.dialog.open()
 
     # screen3 ends here
 
