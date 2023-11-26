@@ -9,7 +9,9 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.label import MDLabel
 import os
 from kivymd.uix.textfield import MDTextField
+from kivy.uix.textinput import TextInput
 from kivymd.uix.textfield import MDTextField
+import random
 
 KV = '''
 <DrawerClickableItem@MDNavigationDrawerItem>
@@ -289,6 +291,7 @@ MDScreen:
                     md_bg_color: "#e7e4c0"
                     text_color: "#4a4939"
                     pos_hint:{"center_x": .2, "center_y":.4}
+                    on_release:app.generate_random_paragraphs()
 
 
                 MDRectangleFlatButton:
@@ -528,6 +531,34 @@ class Example(MDApp):
         self.dialog.open()
 
     # screen3 ends here
+
+    # Screen four begins from here
+
+    # function to generate random paragraphs:
+    def generate_random_paragraphs(self):
+        list1 = ['boy', 'girl', 'cherry', 'date', 'house', 'tree', 'plane', 'shoe', 'dog', 'cat']  # nouns
+        list2 = ['he', 'she', 'you', 'me', 'I', 'we', 'us', 'this', 'them', 'that']  # promouns
+        list3 = ['run', 'jump', 'write', 'sing', 'dance', 'eat', 'study', 'create', 'build', 'think']  # verbs
+        list4 = ['now', 'today', 'yesterday', 'soon', 'later', 'always', 'often', 'rarely', 'never']  # adverbs
+        list5 = ['small', 'large', 'tiny', 'massive', 'gigantic', 'miniature', 'colossal']  # adjectives
+
+        for _ in range(5):
+            sentence = ''
+            for _ in range(10):
+                words = [random.choice(list1), random.choice(list2), random.choice(list3), random.choice(list4),
+                         random.choice(list5)]
+                sentence += ' '.join(words) + ' '
+            sentence = sentence.capitalize().strip() + '. '
+            print(sentence)
+
+        # a function to replace words in the text field
+        def replace_words_in_text_field(random_paragraphs, text_input_text):
+            # Replace words in the text field with their corresponding nouns, pronouns, verbs, and adjectives
+
+            # You can use regular expressions or other string manipulation techniques to achieve this
+            pass
+
+    # Screen four ends here
 
     def clear_inputs_and_outputs(self):
         self.root.ids.selected_path_label.text = ""
