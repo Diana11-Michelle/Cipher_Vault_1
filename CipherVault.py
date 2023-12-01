@@ -12,6 +12,9 @@ from kivymd.uix.textfield import MDTextField
 from kivy.uix.textinput import TextInput
 from kivymd.uix.textfield import MDTextField
 import random
+from datetime import datetime
+import tkinter as tk
+from tkinter import messagebox
 
 KV = '''
 <DrawerClickableItem@MDNavigationDrawerItem>
@@ -299,6 +302,7 @@ MDScreen:
                     # color 
                     text_color: "#4a4939"
                     pos_hint:{"center_x": .5, "center_y":.3} 
+                    on_release: app.save_to_file()
 
                 MDRectangleFlatButton:
                     text:"Finish"
@@ -535,28 +539,54 @@ class Example(MDApp):
     # Screen four begins from here
 
     # function to generate random paragraphs:
-    def generate_random_paragraphs(self):
+    def generate_random_paragraphs(self, num_paragraphs=5, sentences_per_paragraph=10):
         list1 = ['boy', 'girl', 'cherry', 'date', 'house', 'tree', 'plane', 'shoe', 'dog', 'cat']  # nouns
-        list2 = ['he', 'she', 'you', 'me', 'I', 'we', 'us', 'this', 'them', 'that']  # promouns
+        list2 = ['he', 'she', 'you', 'me', 'I', 'we', 'us', 'this', 'them', 'that']  # pronouns
         list3 = ['run', 'jump', 'write', 'sing', 'dance', 'eat', 'study', 'create', 'build', 'think']  # verbs
         list4 = ['now', 'today', 'yesterday', 'soon', 'later', 'always', 'often', 'rarely', 'never']  # adverbs
         list5 = ['small', 'large', 'tiny', 'massive', 'gigantic', 'miniature', 'colossal']  # adjectives
 
-        for _ in range(5):
-            sentence = ''
-            for _ in range(10):
-                words = [random.choice(list1), random.choice(list2), random.choice(list3), random.choice(list4),
-                         random.choice(list5)]
-                sentence += ' '.join(words) + ' '
-            sentence = sentence.capitalize().strip() + '. '
-            print(sentence)
+        paragraphs = ''
+        for _ in range(num_paragraphs):
+            paragraph = ''
+            for _ in range(sentences_per_paragraph):
+                sentence = ''
+                for _ in range(10):
+                    words = [random.choice(list1), random.choice(list2), random.choice(list3),
+                             random.choice(list4), random.choice(list5)]
+                    sentence += ' '.join(words) + ' '
+                sentence = sentence.capitalize().strip() + '. '
+                paragraph += sentence
+            paragraphs += paragraph + '\n'
+            print(paragraphs)
+        self.show_popup()
+        self.save_to_file(paragraphs)  # passes the paragraph to the next method
+
+    def save_to_file(self, paragraphs):
+        try:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f'generated_paragraphs_{timestamp}.txt'
+            with open(filename, 'w') as file:
+                file.write(paragraphs)
+            print(f"File '{filename}' has been saved in the current directory.")
+            # self.show_popup2()  #Calls the show_popup2 function after saving the file.
+        except Exception as e:
+            print(f"Error saving file: {str(e)}")  # Handle the error
+
+    def show_popup(self):
+        messagebox.showinfo("Message", "Your message has been embedded.")
+        # popup for the saved file in current directory
+
+    def show_popup2(self):
+        messagebox.showinfo("Message", "Your file has been  saved!")
 
         # a function to replace words in the text field
-        def replace_words_in_text_field(random_paragraphs, text_input_text):
-            # Replace words in the text field with their corresponding nouns, pronouns, verbs, and adjectives
 
-            # You can use regular expressions or other string manipulation techniques to achieve this
-            pass
+    def replace_words_in_text_field(random_paragraphs, text_input_text):
+        # Replace words in the text field with their corresponding nouns, pronouns, verbs, and adjectives
+
+        # You can use regular expressions or other string manipulation techniques to achieve this
+        pass
 
     # Screen four ends here
 
